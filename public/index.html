@@ -101,14 +101,14 @@
       $("#test_it").click(function(e) {
         e.preventDefault();
         var img = document.createElement('img');
-        img.src = "http://" + hostName + "/tracking_pixel.gif" + "?f=" + Math.ceil(Math.random() * 1000000)
+        img.src = "http://" + hostName + "/tracking_pixel.gif" + "?f=" + Math.ceil(Math.random() * 1000000);
       });
 
       $("#test_cart").click(function(e) {
         e.preventDefault();
 
         var img = document.createElement('img');
-        img.src = "http://" + hostName + "/tracking_pixel.gif" + "?events=scAdd&f=" + Math.ceil(Math.random() * 1000000)
+        img.src = "http://" + hostName + "/tracking_pixel.gif" + "?events=scAdd&f=" + Math.ceil(Math.random() * 1000000);
       });
     });
   </script>
