@@ -4,7 +4,7 @@
 
 <head>
   <script src="/js/jquery-1.4.3.js"></script>
-
+  <script src="/js/config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
     WEB_SOCKET_SWF_LOCATION = '/socket.io/';
@@ -67,6 +67,8 @@
 
   <script>
     $(document).ready(function() {
+      var hostName = document.location.hostname;
+
       hummingbirdSocket = new Hummingbird.WebSocket();
       hummingbirdSocket.start();
 
@@ -98,16 +100,15 @@
 
       $("#test_it").click(function(e) {
         e.preventDefault();
-
         var img = document.createElement('img');
-        img.src = "http://localhost:8000/tracking_pixel.gif?f=" + Math.ceil(Math.random() * 1000000)
+        img.src = "http://" + hostName + "/tracking_pixel.gif" + "?f=" + Math.ceil(Math.random() * 1000000)
       });
 
       $("#test_cart").click(function(e) {
         e.preventDefault();
 
         var img = document.createElement('img');
-        img.src = "http://localhost:8000/tracking_pixel.gif?events=scAdd&f=" + Math.ceil(Math.random() * 1000000)
+        img.src = "http://" + hostName + "/tracking_pixel.gif" + "?events=scAdd&f=" + Math.ceil(Math.random() * 1000000)
       });
     });
   </script>

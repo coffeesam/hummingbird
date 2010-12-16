@@ -1,63 +1,67 @@
 require.paths.unshift(__dirname + '/lib');
 require.paths.unshift(__dirname);
 
-var http = require('http'),
-  weekly = require('weekly'),
-  fs = require('fs'),
-  static = require('node-static'),
-  io = require('socket.io'),
-  mongo = require('mongodb'),
-  Hummingbird = require('hummingbird').Hummingbird;
 
-try {
-  var configJSON = fs.readFileSync(__dirname + "/config/app.json");
-} catch(e) {
-  console.log("File config/app.json not found.  Try: `cp config/app.json.sample config/app.json`");
-}
-var config = JSON.parse(configJSON.toString());
+(function main() {
 
-db = new mongo.Db('hummingbird', new mongo.Server(config.mongo_host, config.mongo_port, {}), {});
+  var http = require('http'),
+      weekly = require('weekly'),
+      fs = require('fs'),
+      static = require('node-static'),
+      io = require('socket.io'),
+      mongo = require('mongodb'),
+      Hummingbird = require('hummingbird').Hummingbird;
 
-db.addListener("error", function(error) {
-  console.log("Error connecting to mongo -- perhaps it isn't running?");
-});
+  try {
+    var configJSON = fs.readFileSync(__dirname + "/config/app.json");
+  } catch(e) {
+    console.log("File config/app.json not found.  Try: `cp config/app.json.sample config/app.json`");
+  }
+  var config = JSON.parse(configJSON.toString());
 
-db.open(function(p_db) {
-  var hummingbird = new Hummingbird();
-  hummingbird.init(db, function() {
-    var server = http.createServer(function(req, res) {
-      try {
-        hummingbird.serveRequest(req, res);
-      } catch(e) {
-        hummingbird.handleError(req, res, e);
-      }
-    });
-    server.listen(config.tracking_port, "0.0.0.0");
+  db = new mongo.Db('hummingbird', new mongo.Server(config.mongo_host, config.mongo_port, {}), {});
 
-    socket = io.listen(server);
-
-    socket.on('connection', function(client){
-      // new client is here!
-      client.on('disconnect', function(){ console.log("Lost ws client"); })
-    });
-
-    hummingbird.socket = socket;
-    hummingbird.addAllMetrics(socket, db);
-
-    console.log('Web Socket server running at ws://*:' + config.tracking_port);
+  db.addListener("error", function(error) {
+    console.log("Error connecting to mongo -- perhaps it isn't running?");
   });
 
-  console.log('Tracking server running at http://*:' + config.tracking_port + '/tracking_pixel.gif');
-});
+  db.open(function(p_db) {
+    var hummingbird = new Hummingbird();
+    hummingbird.init(db, function() {
+      var server = http.createServer(function(req, res) {
+        try {
+          hummingbird.serveRequest(req, res);
+        } catch(e) {
+          hummingbird.handleError(req, res, e);
+        }
+      });
+      server.listen(config.tracking_port);
+      server.maxConnections = 3000;
+      socket = io.listen(server);
 
-if(config.enable_dashboard) {
-  var file = new(static.Server)('./public');
+      socket.on('connection', function(client){
+        // new client is here!
+        client.on('disconnect', function(){ console.log("Lost ws client"); })
+      });
 
-  http.createServer(function (request, response) {
-    request.addListener('end', function () {
-      file.serve(request, response);
+      hummingbird.socket = socket;
+      hummingbird.addAllMetrics(socket, db);
+
+      console.log('Web Socket server running at ws://*:' + config.tracking_port);
     });
-  }).listen(config.dashboard_port);
 
-  console.log('Dashboard server running at http://*:' + config.dashboard_port);
-}
+    console.log('Tracking server running at http://*:' + config.tracking_port + '/tracking_pixel.gif');
+  });
+
+  if(config.enable_dashboard) {
+    var file = new(static.Server)('./public');
+
+    http.createServer(function (request, response) {
+      request.addListener('end', function () {
+        file.serve(request, response);
+      });
+    }).listen(config.dashboard_port);
+
+    console.log('Dashboard server running at http://*:' + config.dashboard_port);
+  }
+})();
