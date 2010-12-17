@@ -35,8 +35,8 @@ require.paths.unshift(__dirname);
           hummingbird.handleError(req, res, e);
         }
       });
+      server.maxConnections = 60000;
       server.listen(config.tracking_port);
-      server.maxConnections = 3000;
       socket = io.listen(server);
 
       socket.on('connection', function(client){
