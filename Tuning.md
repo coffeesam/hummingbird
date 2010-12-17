@@ -1,4 +1,5 @@
 Linux Server Tuning for Hummingbird (Nodejs and MongoDB)
+========================================================
 
 Pure Linux server performance
 -----------------------------
@@ -17,7 +18,7 @@ Pure Linux server performance
 NodeJs
 ------
 1. Start node in nodejs user with valid permissions (listen at port 80 and 8080)
-2. server.js : server.maxconnections = 60000
+2. server.js : server.maxConnections = 60000;
 
 MongoDB
 -------
