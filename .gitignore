@@ -1,3 +1,4 @@
+*.old
 *.swp
 /backups
 /config/app.json
